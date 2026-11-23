@@ -1,6 +1,6 @@
-/* Карточки: хранение в localStorage, интервалы по упрощённому SM-2. */
+/* Карточки: localStorage, интервалы по упрощённому SM-2, переворот в 3D. */
 const KEY = 'cards.v1';
-const state = { queue: [], current: null, answerShown: false };
+const state = { queue: [], current: null, flipped: false };
 
 const $ = (id) => document.getElementById(id);
 
@@ -16,9 +16,7 @@ function save(cards) {
   localStorage.setItem(KEY, JSON.stringify(cards));
 }
 
-function today() {
-  return new Date().toISOString().slice(0, 10);
-}
+const today = () => new Date().toISOString().slice(0, 10);
 
 function addDays(days) {
   const d = new Date();
@@ -58,14 +56,20 @@ function renderList() {
   });
 }
 
+function unflip() {
+  state.flipped = false;
+  $('flip').classList.remove('flipped');
+  $('btn-know').classList.add('hidden');
+  $('btn-dunno').classList.add('hidden');
+}
+
 function startSession() {
-  const cards = load().filter((c) => c.due <= today());
-  state.queue = cards.map((c) => c.id);
+  state.queue = load().filter((c) => c.due <= today()).map((c) => c.id);
   nextCard();
 }
 
 function nextCard() {
-  state.answerShown = false;
+  unflip();
   const cards = load();
   const id = state.queue.shift();
   const card = cards.find((c) => c.id === id);
@@ -73,13 +77,9 @@ function nextCard() {
   if (!card) {
     state.current = null;
     $('review-label').textContent = 'повторение';
-    $('card-front').textContent = state.queue.length
-      ? 'Загрузка…'
-      : 'На сегодня всё. Возвращайтесь завтра или добавьте карточки.';
-    $('card-back').classList.add('hidden');
-    $('btn-show').classList.add('hidden');
-    $('btn-know').classList.add('hidden');
-    $('btn-dunno').classList.add('hidden');
+    $('card-front').textContent = 'На сегодня всё. Возвращайтесь завтра или добавьте карточки.';
+    $('card-back').textContent = '';
+    $('flip-hint').textContent = '';
     $('btn-start').classList.remove('hidden');
     renderStats();
     renderList();
@@ -90,20 +90,16 @@ function nextCard() {
   $('review-label').textContent = `повтор №${(card.reviews || 0) + 1}`;
   $('card-front').textContent = card.front;
   $('card-back').textContent = card.back;
-  $('card-back').classList.add('hidden');
+  $('flip-hint').textContent = 'нажмите на карточку';
   $('btn-start').classList.add('hidden');
-  $('btn-show').classList.remove('hidden');
-  $('btn-know').classList.add('hidden');
-  $('btn-dunno').classList.add('hidden');
 }
 
-function showAnswer() {
-  if (!state.current || state.answerShown) return;
-  state.answerShown = true;
-  $('card-back').classList.remove('hidden');
-  $('btn-show').classList.add('hidden');
-  $('btn-know').classList.remove('hidden');
-  $('btn-dunno').classList.remove('hidden');
+function flip() {
+  if (!state.current) return;
+  state.flipped = !state.flipped;
+  $('flip').classList.toggle('flipped', state.flipped);
+  $('btn-know').classList.toggle('hidden', !state.flipped);
+  $('btn-dunno').classList.toggle('hidden', !state.flipped);
 }
 
 function grade(known) {
@@ -123,10 +119,10 @@ function grade(known) {
   nextCard();
 }
 
+$('flip').addEventListener('click', flip);
 $('btn-start').addEventListener('click', startSession);
-$('btn-show').addEventListener('click', showAnswer);
-$('btn-know').addEventListener('click', () => grade(true));
-$('btn-dunno').addEventListener('click', () => grade(false));
+$('btn-know').addEventListener('click', (event) => { event.stopPropagation(); grade(true); });
+$('btn-dunno').addEventListener('click', (event) => { event.stopPropagation(); grade(false); });
 
 $('add-form').addEventListener('submit', (event) => {
   event.preventDefault();
@@ -154,7 +150,7 @@ document.addEventListener('keydown', (event) => {
   if (event.target.tagName === 'INPUT') return;
   if (event.code === 'Space') {
     event.preventDefault();
-    showAnswer();
+    flip();
   }
   if (event.key === '1') grade(true);
   if (event.key === '2') grade(false);

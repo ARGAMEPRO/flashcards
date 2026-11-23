@@ -4,27 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Карточки — запоминание с повторением</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Cormorant+Garamond:ital,wght@1,500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
   <header class="top">
-    <div class="brand">карточки</div>
+    <div class="brand">карточки<span class="dot">*</span></div>
     <div class="stats" id="stats"></div>
   </header>
 
-  <section class="panel" id="review-panel">
+  <section class="panel">
     <div class="eyebrow" id="review-label">повторение</div>
-    <div class="card" id="card-front">Нажмите «Начать», чтобы пройти то, что пора повторить.</div>
-    <div class="card back hidden" id="card-back"></div>
+
+    <div class="stage">
+      <div class="card" id="flip">
+        <div class="face front">
+          <span class="side">вопрос</span>
+          <p class="text" id="card-front">Нажмите «Начать», чтобы пройти то, что пора повторить.</p>
+          <span class="flip-hint" id="flip-hint">нажмите на карточку</span>
+        </div>
+        <div class="face back">
+          <span class="side">ответ</span>
+          <p class="text" id="card-back"></p>
+          <span class="flip-hint">вернуть вопрос</span>
+        </div>
+      </div>
+    </div>
+
     <div class="actions">
       <button class="btn" id="btn-start">Начать</button>
-      <button class="btn hidden" id="btn-show">Показать ответ</button>
-      <button class="btn ok hidden" id="btn-know">Знаю</button>
+      <button class="btn hidden" id="btn-know">Знаю</button>
       <button class="btn no hidden" id="btn-dunno">Забыл</button>
     </div>
-    <p class="hint">Пробел — показать ответ, 1 — знаю, 2 — забыл</p>
+    <p class="hint">Пробел или клик по карточке — перевернуть, 1 — знаю, 2 — забыл</p>
   </section>
 
   <section class="panel">
