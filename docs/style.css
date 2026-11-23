@@ -28,7 +28,7 @@ main{max-width:820px;margin:0 auto;padding:44px 20px 90px}
 .card{
   position:relative;width:100%;min-height:250px;
   transform-style:preserve-3d;
-  transition:transform .65s cubic-bezier(.2,.75,.2,1);
+  transition:transform .95s cubic-bezier(.22,.68,.16,1);
   cursor:pointer;
 }
 .card.flipped{transform:rotateY(180deg)}
